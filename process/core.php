@@ -2,15 +2,15 @@
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set('display_errors', 'On');
-//set_error_handler("var_dump");
-//set_error_handler("E_ALL");
+// set_error_handler("var_dump");
+// set_error_handler("E_ALL");
 session_start();
 #-------------------------------------------------START:
 
-    define('DB_HOSTNAME', 'localhost');
-    define('DB_USERNAME', '');
-    define('DB_PASSWORD', '');
-    define('DB_DATABASE', 'hellocms');
+        define('DB_HOSTNAME', 'localhost');
+        define('DB_USERNAME', 'root');
+        define('DB_PASSWORD', '');
+        define('DB_DATABASE', 'hellocms');
 
 #-------------------------------------------------END.
 #               DATABASE [_DB]
@@ -100,3 +100,53 @@ function GetDBSize() {
     $output = number_format($sum, 2, '.', ' ');
     return $output;
 }
+##-----Get All Setting-----
+function GetAllS($Q='*'){
+    $sql = "SELECT $Q FROM setting";
+    $output = QDB($sql,0,1);
+    if($Q=='*'){
+        return $output;
+    }else{
+        return $output[$Q];
+    }
+}
+#-------------------------------------------------END.
+#               Admin [_U]
+#-------------------------------------------------START:
+##-----Login Admin-----
+function LoginUser($login_name,$pass) {
+    $sql = "SELECT * FROM setting WHERE admin='$login_name' And pass='$pass'";
+    $output = QDB($sql,0,1);
+    if(!$output==False){
+        $_SESSION['is_U_login'] = True;
+        echo $_SESSION['is_U_login'];
+    } else {
+        $_SESSION['is_U_login'] = False;
+        echo 0;
+    }
+}
+##-----Logout Admin-----
+function LogoutUser(){
+        $_SESSION['is_USER_login'] = False;
+        $_SESSION['is_U_login'] = False;
+        session_unset();
+        session_destroy();
+        echo 1;
+}
+#-------------------------------------------------END.
+#               General Functions
+#-------------------------------------------------START:
+##-----Get IP-----
+function GetIP(){
+    if ( isset($_SERVER['HTTP_CLIENT_IP']) && ! empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && ! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+    }
+    $ip = filter_var($ip, FILTER_VALIDATE_IP);
+    $ip = ($ip === false) ? '0.0.0.0' : $ip;
+    return $ip;
+}
+#-------------------------------------------------END.
